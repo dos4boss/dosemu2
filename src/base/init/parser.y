@@ -58,6 +58,7 @@
 #include "disks.h"
 #include "port.h"
 #define allow_io	port_allow_io
+#include "mmio_traceing.h"
 #include "lpt.h"
 #include "video.h"
 #include "vc.h"
@@ -296,6 +297,7 @@ enum {
 %token IO PORT CONFIG READ WRITE KEYB PRINTER WARNING GENERAL HARDWARE
 %token L_IPC SOUND
 %token TRACE CLEAR
+%token TRACE_MMIO
 
 	/* printer */
 %token LPT COMMAND TIMEOUT L_FILE
@@ -766,6 +768,7 @@ line:		CHARSET '{' charset_flags '}' {}
 		    { IFCLASS(CL_PORT) start_ports(); }
 		  '{' port_flags '}'
 		| TRACE PORTS '{' trace_port_flags '}'
+    | TRACE_MMIO '{' trace_mmio_flags '}'
 		| DISK
 		    { start_disk(); }
 		  '{' disk_flags '}'
@@ -1664,6 +1667,25 @@ trace_port_flag	: INTEGER
 		      free($1); }
 		| error
 		;
+
+/* MMIO traceing */
+
+trace_mmio_flags	: trace_mmio_flag
+    | trace_mmio_flags trace_mmio_flag
+    ;
+trace_mmio_flag	: INTEGER
+      { register_mmio_traceing($1, $1); }
+    | '(' expression ')'
+      { register_mmio_traceing($2, $2); }
+    | RANGE INTEGER INTEGER
+      { register_mmio_traceing($2, $3); }
+    | RANGE expression ',' expression
+      { register_mmio_traceing($2, $4); }
+    | STRING
+       { yyerror("unrecognized mmio trace command '%s'", $1);
+         free($1); }
+    | error
+    ;
 
 	/* IRQ definition for Silly Interrupt Generator */
 
