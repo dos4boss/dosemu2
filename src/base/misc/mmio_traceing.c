@@ -39,12 +39,9 @@ void register_mmio_traceing(dosaddr_t startaddr, dosaddr_t stopaddr)
   }
   else
     error("MMIO: Too many address regions to trace. Increase MMIO_TRACEING_MAX_REGIONS to allow some more...");
-
-  // TODO
-  printf("MMIO: traceing 0x%x-0x%x\n", startaddr, stopaddr);
 }
 
-void mmio_check_and_trace(dosaddr_t addr, uint32_t value, uint8_t type)
+bool mmio_check(dosaddr_t addr)
 {
   /* to not slow down too much for any other memory access (not in traceing region,
      MMIO is usually in some distance to RAM) */
@@ -54,37 +51,72 @@ void mmio_check_and_trace(dosaddr_t addr, uint32_t value, uint8_t type)
     {
       if((addr >= mmio_traceing_config.address_ranges[k].start) &&
          (addr <= mmio_traceing_config.address_ranges[k].stop))
-      {
-        switch(type)
-        {
-        case MMIO_READ | MMIO_BYTE:
-          F_printf("MMIO: Reading byte at %X: %02X\n", addr, value);
-          return;
-        case MMIO_READ | MMIO_WORD:
-          F_printf("MMIO: Reading word at %X: %04X\n", addr, value);
-          return;
-        case MMIO_READ | MMIO_DWORD:
-          F_printf("MMIO: Reading dword at %X: %08X\n", addr, value);
-          return;
-        case MMIO_READ | MMIO_QWORD:
-          F_printf("MMIO: Reading qword at %X: %016X\n", addr, value);
-          return;
-        case MMIO_WRITE | MMIO_BYTE:
-          F_printf("MMIO: Writing byte at %X: %02X\n", addr, value);
-          return;
-        case MMIO_WRITE | MMIO_WORD:
-          F_printf("MMIO: Writing word at %X: %04X\n", addr, value);
-          return;
-        case MMIO_WRITE | MMIO_DWORD:
-          F_printf("MMIO: Writing dword at %X: %08X\n", addr, value);
-          return;
-        case MMIO_WRITE | MMIO_QWORD:
-          F_printf("MMIO: Writing qword at %X: %016X\n", addr, value);
-          return;
-        default:
-          F_printf("MMIO: Failed. Wrong arguments.");
-        }
-      }
+        return true;
     }
   }
+  return false;
+}
+
+uint8_t mmio_trace_byte(dosaddr_t addr, uint8_t value, uint8_t type)
+{
+  switch(type)
+  {
+  case MMIO_READ:
+    F_printf("MMIO: Reading byte at %X: %02X\n", addr, value);
+    break;
+  case MMIO_WRITE:
+    F_printf("MMIO: Writing byte at %X: %02X\n", addr, value);
+    break;
+  default:
+    F_printf("MMIO: Failed. Wrong arguments.");
+  }
+  return value;
+}
+
+uint16_t mmio_trace_word(dosaddr_t addr, uint16_t value, uint8_t type)
+{
+  switch(type)
+  {
+  case MMIO_READ:
+    F_printf("MMIO: Reading word at %X: %04X\n", addr, value);
+    break;
+  case MMIO_WRITE:
+    F_printf("MMIO: Writing word at %X: %04X\n", addr, value);
+    break;
+  default:
+    F_printf("MMIO: Failed. Wrong arguments.");
+  }
+  return value;
+}
+
+uint32_t mmio_trace_dword(dosaddr_t addr, uint32_t value, uint8_t type)
+{
+  switch(type)
+  {
+  case MMIO_READ:
+    F_printf("MMIO: Reading dword at %X: %08X\n", addr, value);
+    break;
+  case MMIO_WRITE:
+    F_printf("MMIO: Writing dword at %X: %08X\n", addr, value);
+    break;
+  default:
+    F_printf("MMIO: Failed. Wrong arguments.");
+  }
+  return value;
+}
+
+uint64_t mmio_trace_qword(dosaddr_t addr, uint64_t value, uint8_t type)
+{
+  switch(type)
+  {
+  case MMIO_READ:
+    F_printf("MMIO: Reading qword at %X: %016lX\n", addr, value);
+    break;
+  case MMIO_WRITE:
+    F_printf("MMIO: Writing qword at %X: %016lX\n", addr, value);
+    break;
+  default:
+    F_printf("MMIO: Failed. Wrong arguments.");
+  }
+  return value;
 }

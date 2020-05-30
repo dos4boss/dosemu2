@@ -768,7 +768,9 @@ line:		CHARSET '{' charset_flags '}' {}
 		    { IFCLASS(CL_PORT) start_ports(); }
 		  '{' port_flags '}'
 		| TRACE PORTS '{' trace_port_flags '}'
-    | TRACE_MMIO '{' trace_mmio_flags '}'
+    | TRACE_MMIO
+       { config.mmio_traceing = 1; }
+      '{' trace_mmio_flags '}'
 		| DISK
 		    { start_disk(); }
 		  '{' disk_flags '}'
@@ -1674,13 +1676,17 @@ trace_mmio_flags	: trace_mmio_flag
     | trace_mmio_flags trace_mmio_flag
     ;
 trace_mmio_flag	: INTEGER
-      { register_mmio_traceing($1, $1); }
+      { register_mmio_traceing($1, $1);
+        c_printf("CONF: MMIO traceing registered for 0x%x\n", $1); }
     | '(' expression ')'
-      { register_mmio_traceing($2, $2); }
+      { register_mmio_traceing($2, $2);
+        c_printf("CONF: MMIO traceing registered for 0x%x\n", $2); }
     | RANGE INTEGER INTEGER
-      { register_mmio_traceing($2, $3); }
+      { register_mmio_traceing($2, $3);
+        c_printf("CONF: MMIO traceing registered for 0x%x-0x%x\n", $2, $3); }
     | RANGE expression ',' expression
-      { register_mmio_traceing($2, $4); }
+      { register_mmio_traceing($2, $4);
+        c_printf("CONF: MMIO traceing registered for 0x%x-0x%x\n", $2, $4); }
     | STRING
        { yyerror("unrecognized mmio trace command '%s'", $1);
          free($1); }
