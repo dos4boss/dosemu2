@@ -13,6 +13,16 @@ struct mmio_traceing_config
 
 static struct mmio_traceing_config mmio_traceing_config;
 
+
+static void mmio_traceing_scrub(void)
+{
+  if((config.cpuemu != 4) ||
+     (config.cpu_vm != 2) ||
+     (config.cpu_vm_dpmi != 2))
+    error("MMIO: traceing is only only working for fully simulated cpu. "
+          "Config must be set to '$_cpu_vm=\"emulated\"', '$_cpu_vm_dpmi=\"emulated\"' and '$_cpu_emu=\"fullsim\"'\n");
+}
+
 void register_mmio_traceing(dosaddr_t startaddr, dosaddr_t stopaddr)
 {
   if(stopaddr < startaddr)
@@ -27,6 +37,7 @@ void register_mmio_traceing(dosaddr_t startaddr, dosaddr_t stopaddr)
     {
       mmio_traceing_config.min_addr = startaddr;
       mmio_traceing_config.max_addr = stopaddr;
+      register_config_scrub(mmio_traceing_scrub);
     }
     else
     {
