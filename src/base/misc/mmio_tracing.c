@@ -1,63 +1,63 @@
-#include "mmio_traceing.h"
+#include "mmio_tracing.h"
 
 struct mmio_address_range {
   dosaddr_t start, stop;
 };
 
-struct mmio_traceing_config {
-  struct mmio_address_range address_ranges[MMIO_TRACEING_MAX_REGIONS];
+struct mmio_tracing_config {
+  struct mmio_address_range address_ranges[MMIO_TRACING_MAX_REGIONS];
   unsigned valid_ranges;
   dosaddr_t min_addr, max_addr;
 };
 
-static struct mmio_traceing_config mmio_traceing_config;
+static struct mmio_tracing_config mmio_tracing_config;
 
 
-static void mmio_traceing_scrub(void)
+static void mmio_tracing_scrub(void)
 {
   if ((config.cpuemu != 4) ||
       (config.cpu_vm != 2) || (config.cpu_vm_dpmi != 2))
-    error("MMIO: traceing is only only working for fully simulated cpu. "
+    error("MMIO: tracing is only only working for fully simulated cpu. "
           "Config must be set to '$_cpu_vm=\"emulated\"', '$_cpu_vm_dpmi=\"emulated\"' and '$_cpu_emu=\"fullsim\"'\n");
 }
 
-void register_mmio_traceing(dosaddr_t startaddr, dosaddr_t stopaddr)
+void register_mmio_tracing(dosaddr_t startaddr, dosaddr_t stopaddr)
 {
   if (stopaddr < startaddr) {
     error("MMIO: address order wrong.");
     return;
   }
 
-  if (mmio_traceing_config.valid_ranges < MMIO_TRACEING_MAX_REGIONS - 1) {
-    if (mmio_traceing_config.valid_ranges == 0) {
-      mmio_traceing_config.min_addr = startaddr;
-      mmio_traceing_config.max_addr = stopaddr;
-      register_config_scrub(mmio_traceing_scrub);
+  if (mmio_tracing_config.valid_ranges < MMIO_TRACING_MAX_REGIONS - 1) {
+    if (mmio_tracing_config.valid_ranges == 0) {
+      mmio_tracing_config.min_addr = startaddr;
+      mmio_tracing_config.max_addr = stopaddr;
+      register_config_scrub(mmio_tracing_scrub);
     } else {
-      if (startaddr < mmio_traceing_config.min_addr)
-        mmio_traceing_config.min_addr = startaddr;
-      if (stopaddr > mmio_traceing_config.max_addr)
-        mmio_traceing_config.max_addr = stopaddr;
+      if (startaddr < mmio_tracing_config.min_addr)
+        mmio_tracing_config.min_addr = startaddr;
+      if (stopaddr > mmio_tracing_config.max_addr)
+        mmio_tracing_config.max_addr = stopaddr;
     }
-    mmio_traceing_config.address_ranges[mmio_traceing_config.valid_ranges].
+    mmio_tracing_config.address_ranges[mmio_tracing_config.valid_ranges].
         start = startaddr;
-    mmio_traceing_config.address_ranges[mmio_traceing_config.valid_ranges].
+    mmio_tracing_config.address_ranges[mmio_tracing_config.valid_ranges].
         stop = stopaddr;
-    mmio_traceing_config.valid_ranges++;
+    mmio_tracing_config.valid_ranges++;
   } else
     error
-        ("MMIO: Too many address regions to trace. Increase MMIO_TRACEING_MAX_REGIONS to allow some more...");
+        ("MMIO: Too many address regions to trace. Increase MMIO_TRACING_MAX_REGIONS to allow some more...");
 }
 
 bool mmio_check(dosaddr_t addr)
 {
-  /* to not slow down too much for any other memory access (not in traceing region,
+  /* to not slow down too much for any other memory access (not in tracing region,
      MMIO is usually in some distance to RAM) */
-  if ((addr >= mmio_traceing_config.min_addr)
-      && (addr <= mmio_traceing_config.max_addr)) {
-    for (unsigned k = 0; k < mmio_traceing_config.valid_ranges; k++) {
-      if ((addr >= mmio_traceing_config.address_ranges[k].start) &&
-          (addr <= mmio_traceing_config.address_ranges[k].stop))
+  if ((addr >= mmio_tracing_config.min_addr)
+      && (addr <= mmio_tracing_config.max_addr)) {
+    for (unsigned k = 0; k < mmio_tracing_config.valid_ranges; k++) {
+      if ((addr >= mmio_tracing_config.address_ranges[k].start) &&
+          (addr <= mmio_tracing_config.address_ranges[k].stop))
         return true;
     }
   }

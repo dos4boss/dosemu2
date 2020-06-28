@@ -58,7 +58,7 @@
 #include "disks.h"
 #include "port.h"
 #define allow_io	port_allow_io
-#include "mmio_traceing.h"
+#include "mmio_tracing.h"
 #include "lpt.h"
 #include "video.h"
 #include "vc.h"
@@ -769,7 +769,7 @@ line:		CHARSET '{' charset_flags '}' {}
 		  '{' port_flags '}'
 		| TRACE PORTS '{' trace_port_flags '}'
     | TRACE_MMIO
-       { config.mmio_traceing = 1; }
+       { config.mmio_tracing = 1; }
       '{' trace_mmio_flags '}'
 		| DISK
 		    { start_disk(); }
@@ -1670,23 +1670,23 @@ trace_port_flag	: INTEGER
 		| error
 		;
 
-/* MMIO traceing */
+/* MMIO tracing */
 
 trace_mmio_flags	: trace_mmio_flag
     | trace_mmio_flags trace_mmio_flag
     ;
 trace_mmio_flag	: INTEGER
-      { register_mmio_traceing($1, $1);
-        c_printf("CONF: MMIO traceing registered for 0x%x\n", $1); }
+      { register_mmio_tracing($1, $1);
+        c_printf("CONF: MMIO tracing registered for 0x%x\n", $1); }
     | '(' expression ')'
-      { register_mmio_traceing($2, $2);
-        c_printf("CONF: MMIO traceing registered for 0x%x\n", $2); }
+      { register_mmio_tracing($2, $2);
+        c_printf("CONF: MMIO tracing registered for 0x%x\n", $2); }
     | RANGE INTEGER INTEGER
-      { register_mmio_traceing($2, $3);
-        c_printf("CONF: MMIO traceing registered for 0x%x-0x%x\n", $2, $3); }
+      { register_mmio_tracing($2, $3);
+        c_printf("CONF: MMIO tracing registered for 0x%x-0x%x\n", $2, $3); }
     | RANGE expression ',' expression
-      { register_mmio_traceing($2, $4);
-        c_printf("CONF: MMIO traceing registered for 0x%x-0x%x\n", $2, $4); }
+      { register_mmio_tracing($2, $4);
+        c_printf("CONF: MMIO tracing registered for 0x%x-0x%x\n", $2, $4); }
     | STRING
        { yyerror("unrecognized mmio trace command '%s'", $1);
          free($1); }

@@ -334,7 +334,7 @@ typedef struct config_info {
        int joy_granularity;	/* the higher, the less sensitive - for wobbly joysticks */
        int joy_latency;		/* delay between nonblocking linux joystick reads */
 
-       int mmio_traceing;
+       int mmio_tracing;
 
        int cli_timeout;		/* cli timeout hack */
 

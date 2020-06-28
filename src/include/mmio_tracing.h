@@ -1,16 +1,16 @@
-#ifndef MMIO_TRACEING_H
-#define MMIO_TRACEING_H
+#ifndef MMIO_TRACING_H
+#define MMIO_TRACING_H
 
 #include <stdbool.h>
 #include "emu.h"
 #include "dosemu_debug.h"
 
-#define MMIO_TRACEING_MAX_REGIONS 16
+#define MMIO_TRACING_MAX_REGIONS 16
 #define MMIO_READ 0x01
 #define MMIO_WRITE 0x02
 
-extern void register_mmio_traceing(dosaddr_t startaddr,
-                                   dosaddr_t stopaddr);
+extern void register_mmio_tracing(dosaddr_t startaddr,
+                                  dosaddr_t stopaddr);
 extern bool mmio_check(dosaddr_t addr);
 extern uint8_t mmio_trace_byte(dosaddr_t addr, uint8_t value,
                                uint8_t type);
@@ -21,4 +21,4 @@ extern uint32_t mmio_trace_dword(dosaddr_t addr, uint32_t value,
 extern uint64_t mmio_trace_qword(dosaddr_t addr, uint64_t value,
                                  uint8_t type);
 
-#endif                          /* MMIO_TRACEING_H */
+#endif                          /* MMIO_TRACING_H */
